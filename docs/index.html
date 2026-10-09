@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadoras UTI</title>
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UTI">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>
+@font-face{font-family:'Atkinson';src:url(fonts/atkinson-400.woff2) format('woff2');font-weight:400;font-display:swap}
+@font-face{font-family:'Atkinson';src:url(fonts/atkinson-700.woff2) format('woff2');font-weight:600 900;font-display:swap}
+:root{
+  color-scheme:light dark;
+  --bg:#e8edf3;--card:#ffffff;--ink:#0f172a;--ink2:#334155;--muted:#64748b;--line:#e2e8f0;--field:#f8fafc;--fieldline:#cbd5e1;
+  --ok:#166534;--ok-bg:#dcfce7;--ok-bd:#16a34a;
+  --warn:#92400e;--warn-bg:#fef3c7;--warn-bd:#d97706;
+  --bad:#b91c1c;--bad-bg:#fee2e2;--bad-solid:#dc2626;
+  --hdr:#0f172a;--hdr-ink:#f8fafc;
+  --wave-bg:#ffffff;--wave-base:#cbd5e1;--wave-p:#ea580c;--wave-f:#0284c7;--wave-mk:#dc2626;
+  --c:#475569;--c-bg:#f8fafc;--c-bd:#e2e8f0;--c-ink:#1e293b;--c-on:#ffffff;
+}
+[data-cat=vaso]{--c:#f43f5e;--c-bg:#fff1f2;--c-bd:#fecdd3;--c-ink:#9f1239}
+[data-cat=sed]{--c:#a855f7;--c-bg:#faf5ff;--c-bd:#e9d5ff;--c-ink:#6b21a8}
+[data-cat=bnm]{--c:#14b8a6;--c-bg:#f0fdfa;--c-bd:#99f6e4;--c-ink:#115e59}
+[data-cat=vent]{--c:#0ea5e9;--c-bg:#f0f9ff;--c-bd:#bae6fd;--c-ink:#075985}
+[data-cat=asinc]{--c:#6366f1;--c-bg:#eef2ff;--c-bd:#c7d2fe;--c-ink:#3730a3}
+[data-cat=gcs]{--c:#10b981;--c-bg:#ecfdf5;--c-bd:#a7f3d0;--c-ink:#065f46}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0b1120;--card:#111a2e;--ink:#e5e7eb;--ink2:#cbd5e1;--muted:#94a3b8;--line:#1f2a40;--field:#0f172a;--fieldline:#334155;
+    --ok:#86efac;--ok-bg:#052e16;--ok-bd:#22c55e;
+    --warn:#fcd34d;--warn-bg:#3a2a06;--warn-bd:#f59e0b;
+    --bad:#fca5a5;--bad-bg:#3b0d0d;--bad-solid:#dc2626;
+    --hdr:#020617;--hdr-ink:#e2e8f0;
+    --wave-bg:#0f172a;--wave-base:#334155;--wave-p:#fb923c;--wave-f:#38bdf8;--wave-mk:#f87171;
+    --c:#94a3b8;--c-bg:#111a2e;--c-bd:#1f2a40;--c-ink:#e2e8f0;--c-on:#0b1120;
+  }
+  [data-cat=vaso]{--c:#fb7185;--c-bg:#2b1119;--c-bd:#4c1d2a;--c-ink:#fecdd3}
+  [data-cat=sed]{--c:#c084fc;--c-bg:#22133a;--c-bd:#3b2160;--c-ink:#e9d5ff}
+  [data-cat=bnm]{--c:#2dd4bf;--c-bg:#08261f;--c-bd:#134e4a;--c-ink:#99f6e4}
+  [data-cat=vent]{--c:#38bdf8;--c-bg:#08202f;--c-bd:#0c4a6e;--c-ink:#bae6fd}
+  [data-cat=asinc]{--c:#818cf8;--c-bg:#161a3d;--c-bd:#312e81;--c-ink:#c7d2fe}
+  [data-cat=gcs]{--c:#34d399;--c-bg:#06281f;--c-bd:#065f46;--c-ink:#a7f3d0}
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px);-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Atkinson",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;line-height:1.45;letter-spacing:.01em}
+button{font:inherit;color:inherit}
+input{font:inherit}
+.hide{display:none!important}
+
+/* topo */
+.top{position:sticky;top:0;z-index:30;background:var(--hdr);color:var(--hdr-ink);padding:calc(env(safe-area-inset-top,0px) + 8px) 12px 8px;display:flex;align-items:center;gap:10px}
+.brand{flex:1;min-width:0;font-weight:900;font-size:16px;line-height:1.15}
+.brand small{display:block;font-size:11px;font-weight:700;color:#94a3b8}
+.peso{display:flex;align-items:baseline;gap:4px;background:rgba(255,255,255,.08);border:2px solid rgba(255,255,255,.14);border-radius:12px;padding:3px 10px}
+.peso input{width:56px;background:transparent;border:0;color:inherit;font-size:22px;font-weight:900;text-align:center;outline:none}
+.peso input::placeholder{color:#94a3b8;font-size:14px;font-weight:700}
+.peso span{font-size:12px;color:#94a3b8;font-weight:700}
+.peso.vazio{border-color:#f59e0b}
+.peso.invalido{border-color:#ef4444;background:rgba(239,68,68,.18)}
+.btn-novo{background:transparent;border:1px solid rgba(255,255,255,.3);border-radius:12px;padding:7px 10px;font-size:12.5px;font-weight:800;cursor:pointer;line-height:1.1}
+.banner{margin:10px 12px 0;padding:10px 12px;border-radius:12px;font-weight:800;font-size:14px;background:var(--bad-solid);color:#fff}
+.toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--card);padding:8px 14px;border-radius:999px;font-size:13px;font-weight:800;z-index:40;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+
+main{max-width:1100px;margin:0 auto;padding:12px 12px calc(92px + env(safe-area-inset-bottom,0px))}
+.lista{display:grid;gap:12px}
+@media(min-width:860px){.lista.duas{grid-template-columns:1fr 1fr;align-items:start}}
+
+/* bloco colorido (estilo v1) */
+.bloco{background:var(--c-bg);border-left:6px solid var(--c);border-radius:4px 18px 18px 4px;padding:12px 12px 12px 13px;box-shadow:0 1px 3px rgba(15,23,42,.08)}
+.bh{display:flex;align-items:center;flex-wrap:wrap;gap:6px 8px;min-height:34px}
+.bh svg.cat{color:var(--c);flex:0 0 auto}
+.bh h3{flex:1;min-width:0;font-size:19px;font-weight:900;color:var(--c-ink);line-height:1.2}
+.tag-par{font-size:11px;font-weight:900;background:var(--bad-solid);color:#fff;padding:3px 7px;border-radius:6px;white-space:nowrap}
+.conc{display:flex;align-items:center;gap:5px;border:1px solid var(--c-bd);background:var(--card);border-radius:999px;padding:5px 10px;font-size:13.5px;font-weight:800;color:var(--c-ink);cursor:pointer;white-space:nowrap}
+.conc.err{border-color:var(--bad-solid);color:var(--bad);background:var(--bad-bg)}
+.conc svg{transition:transform .2s}.conc[aria-expanded="true"] svg{transform:rotate(180deg)}
+.ib{width:34px;height:34px;flex:0 0 34px;border-radius:10px;border:0;background:transparent;color:var(--c-ink);opacity:.75;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.ib.on{opacity:1;background:var(--card)}
+.prep{margin-top:8px;padding:10px 12px;background:var(--card);border:1px dashed var(--c-bd);border-radius:12px;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center}
+.prep label{display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--muted);font-weight:800}
+.prep input{width:64px;border:0;border-bottom:2px solid var(--fieldline);background:transparent;color:var(--ink);font-size:18px;font-weight:900;text-align:center;outline:none}
+.prep input:focus{border-color:var(--c)}
+.prep input.err{border-color:var(--bad-solid);color:var(--bad)}
+.prep .nota{flex-basis:100%;font-size:13px;color:var(--muted)}
+
+/* painel branco com entradas */
+.pan{background:var(--card);border:1px solid var(--c-bd);border-radius:14px;padding:10px;margin-top:10px}
+.io{display:grid;grid-template-columns:1fr 16px 1fr;gap:6px}
+.fld{display:flex;flex-direction:column;border:2px solid var(--fieldline);border-radius:12px;padding:4px 10px 5px;background:var(--card);min-width:0;cursor:text}
+.fld .lb{font-size:12.5px;font-weight:800;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fld input{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);font-size:30px;font-weight:900;outline:none;padding:0;font-variant-numeric:tabular-nums;line-height:1.15}
+.fld input::placeholder{color:var(--muted);font-size:14px;font-weight:700}
+.fld.typed{border-color:var(--c)}
+.fld.calc{border-style:dashed;background:var(--field)}
+.fld.s-ok{border:2px solid var(--ok-bd);background:var(--ok-bg)}.fld.s-ok input{color:var(--ok)}
+.fld.s-warn{border:2px solid var(--warn-bd);background:var(--warn-bg)}.fld.s-warn input{color:var(--warn)}
+.fld.s-bad{border:2px solid var(--bad-solid);background:var(--bad-solid)}.fld.s-bad input,.fld.s-bad .lb{color:#fff}
+.fld.err{border:2px solid var(--bad-solid);border-style:solid;background:var(--bad-bg)}
+.troca{align-self:center;justify-self:center;color:var(--muted);font-weight:900}
+.estado{margin-top:6px;font-size:14px;font-weight:900}
+.estado.warn{color:var(--warn)}.estado.bad{color:var(--bad)}
+.tg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+.tg > div{padding:0 7px;min-width:0}
+.tg > div:first-child{padding-left:2px}
+.tg > div + div{border-left:1px solid var(--line)}
+.tg .k{font-size:12.5px;font-weight:800;color:var(--muted)}
+.tg .v{font-size:17px;font-weight:900;color:var(--ink);line-height:1.2;font-variant-numeric:tabular-nums}
+.tg .v small{font-size:11.5px;font-weight:700;color:var(--muted);margin-left:3px}
+.tg .s{font-size:12.5px;color:var(--muted);font-weight:700;line-height:1.3}
+.alerta{margin-top:8px;border-radius:12px;padding:8px 11px;font-size:14px;line-height:1.4;font-weight:800}
+.alerta.bad{background:var(--bad-solid);color:#fff}
+.alerta.warn{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-bd)}
+.infobox{margin-top:8px;border-radius:12px;padding:9px 12px;font-size:14px;line-height:1.5;background:var(--card);border:1px solid var(--c-bd);color:var(--ink2)}
+.infobox p+p{margin-top:5px}
+.divisor{display:flex;align-items:center;gap:10px;margin:4px 2px 0;font-size:13px;font-weight:900;color:var(--c-ink)}
+.divisor::before,.divisor::after{content:"";flex:1;height:2px;background:var(--c-bd)}
+@media(min-width:860px){.divisor{grid-column:1/-1}}
+
+/* ventilação */
+.vgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}
+.vgrid.c2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.vf{display:flex;flex-direction:column;border:2px solid var(--fieldline);border-radius:12px;padding:4px 9px 5px;background:var(--card);min-width:0}
+.vf label{font-size:12.5px;font-weight:800;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vf .in{display:flex;align-items:baseline;gap:4px}
+.vf input{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);font-size:21px;font-weight:900;outline:none;padding:0;font-variant-numeric:tabular-nums}
+.vf .u{font-size:11px;font-weight:700;color:var(--muted);white-space:nowrap}
+.vf:focus-within{border-color:var(--c)}
+.vf.s-ok{border-color:var(--ok-bd);background:var(--ok-bg)}.vf.s-ok input{color:var(--ok)}
+.vf.s-bad,.vf.err{border-color:var(--bad-solid);background:var(--bad-bg)}.vf.s-bad input,.vf.err input{color:var(--bad)}
+.seg{display:flex;gap:4px;margin-top:3px}
+.seg button{flex:1;border:1px solid var(--fieldline);background:var(--card);font-weight:900;font-size:15px;padding:3px 0;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:var(--c-on)}
+.res{display:grid;gap:6px;margin-top:10px}
+.rr{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--c-bd);border-radius:12px;padding:7px 12px}
+.rr .k{flex:1;min-width:0;font-size:14.5px;font-weight:800;color:var(--ink2);line-height:1.25}
+.rr .k small{display:block;font-size:12.5px;color:var(--muted);font-weight:700}
+.rr .v{font-size:23px;font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rr .v small{font-size:11.5px;color:var(--muted);font-weight:700;margin-left:3px}
+.rr.ok{background:var(--ok-bg);border-color:var(--ok-bd)}.rr.ok .v{color:var(--ok)}
+.rr.warn{background:var(--warn-bg);border-color:var(--warn-bd)}.rr.warn .v{color:var(--warn)}
+.rr.bad{background:var(--bad-solid);border-color:var(--bad-solid)}.rr.bad .k,.rr.bad .k small,.rr.bad .v,.rr.bad .v small{color:#fff}
+.escada{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.degrau{background:var(--card);border:1px solid var(--c-bd);border-radius:12px;padding:5px 4px;text-align:center}
+.degrau span{display:block;font-size:12.5px;font-weight:800;color:var(--muted)}
+.degrau b{font-size:21px;font-weight:900;color:var(--c-ink);font-variant-numeric:tabular-nums}
+.degrau b small{font-size:11px;color:var(--muted);margin-left:2px}
+details.mais{margin-top:10px}
+details.mais > summary{cursor:pointer;font-size:14px;font-weight:900;color:var(--c-ink);list-style:none;padding:4px 0}
+details.mais > summary::-webkit-details-marker{display:none}
+details.mais > summary::before{content:"+ "}
+details.mais[open] > summary::before{content:"− "}
+
+/* assincronias */
+.leg{display:flex;align-items:center;gap:14px;font-size:14px;font-weight:800;color:var(--ink2);margin:0 2px 8px}
+.leg i{font-style:normal;font-weight:900}
+.leg .esp{flex:1}
+.filtros{display:flex;gap:6px;overflow-x:auto;margin:0 0 10px;scrollbar-width:none}
+.filtros button{flex:0 0 auto;border:1px solid var(--c-bd);background:var(--card);color:var(--c-ink);border-radius:999px;padding:6px 14px;font-size:14px;font-weight:800;cursor:pointer}
+.filtros button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:var(--c-on)}
+.ac{padding:0;overflow:hidden}
+.ac-h{display:grid;grid-template-columns:104px 1fr 20px;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;padding:10px 12px;cursor:pointer}
+.ac-h .nm{display:block;font-size:16.5px;font-weight:900;color:var(--c-ink);line-height:1.2}
+.ac-h .idt{display:block;font-size:13.5px;color:var(--ink2);line-height:1.35;margin-top:2px}
+.fase{display:inline-block;font-size:11.5px;font-weight:900;padding:1px 8px;border-radius:6px;margin-top:4px}
+.f-disparo{background:#fef3c7;color:#92400e}.f-fluxo{background:#e0f2fe;color:#075985}.f-ciclagem{background:#ede9fe;color:#5b21b6}
+@media (prefers-color-scheme:dark){.f-disparo{background:#3a2a06;color:#fcd34d}.f-fluxo{background:#082f49;color:#7dd3fc}.f-ciclagem{background:#2e1065;color:#c4b5fd}}
+.ac-h svg.chev{transition:transform .2s;color:var(--c-ink)}
+.ac.on .ac-h svg.chev{transform:rotate(180deg)}
+.ac .bd{display:none;padding:0 12px 12px}
+.ac.on .bd{display:block}
+.onda{width:100%;height:auto;display:block;background:var(--wave-bg);border:1px solid var(--c-bd);border-radius:12px}
+.onda.mini{border-radius:8px}
+.onda .base{stroke:var(--wave-base);stroke-width:1;stroke-dasharray:3 3}
+.onda .cp{fill:none;stroke:var(--wave-p);stroke-width:1.9;stroke-linejoin:round}
+.onda .cf{fill:none;stroke:var(--wave-f);stroke-width:1.9;stroke-linejoin:round}
+.onda.mini .cp,.onda.mini .cf{stroke-width:1.4}
+.onda .ld{stroke:var(--wave-mk);stroke-width:1;opacity:.75}
+.onda .mk{fill:none;stroke:var(--wave-mk);stroke-width:1.6}
+.onda .mt{font:800 8.6px -apple-system,"Segoe UI",Arial,sans-serif;fill:var(--wave-mk)}
+.onda .lbl{font:800 8.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:var(--muted)}
+.onda .lbl2{font:700 7.5px -apple-system,"Segoe UI",Arial,sans-serif;fill:var(--muted)}
+.onda .nt{font:700 8px -apple-system,"Segoe UI",Arial,sans-serif;fill:var(--muted)}
+.resol{margin-top:10px;background:var(--card);border:1px solid var(--c-bd);border-radius:12px;padding:8px 10px 6px}
+.resol h4{font-size:13.5px;font-weight:900;color:var(--ok);margin-bottom:2px}
+.rl{display:flex;gap:9px;align-items:flex-start;padding:6px 0;font-size:15px;line-height:1.4}
+.rl + .rl{border-top:1px solid var(--line)}
+.modo{flex:0 0 auto;min-width:44px;text-align:center;font-size:12px;font-weight:900;background:var(--c-bg);color:var(--c-ink);border:1px solid var(--c-bd);border-radius:6px;padding:1px 5px;margin-top:1px}
+.modo.geral{background:transparent;border-color:transparent;color:var(--c)}
+
+/* glasgow */
+.gtop{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.gtot{font-size:48px;font-weight:900;line-height:1;color:var(--c-ink);font-variant-numeric:tabular-nums}
+.gtot small{font-size:13px;font-weight:800;color:var(--muted);margin-left:4px}
+.gcomp{font-size:17px;font-weight:900}
+.gacoes{margin-left:auto;display:flex;gap:6px}
+.gbtn{border:1px solid var(--c-bd);background:var(--card);font-weight:800;font-size:14px;padding:8px 13px;border-radius:10px;cursor:pointer}
+.gbtn.prim{background:var(--c);border-color:var(--c);color:var(--c-on)}
+.pill{display:inline-block;font-size:14px;font-weight:900;padding:3px 12px;border-radius:999px;line-height:1.5;margin-top:4px}
+.pill.ok{background:var(--ok-bg);color:var(--ok)}.pill.warn{background:var(--warn-bg);color:var(--warn)}.pill.bad{background:var(--bad-solid);color:#fff}.pill.neutro{background:var(--card);color:var(--muted)}
+.grow + .grow{margin-top:12px}
+.gl{font-size:14px;font-weight:900;margin-bottom:5px;color:var(--c-ink)}
+.gl span{font-weight:700;color:var(--muted)}
+.gbts{display:grid;gap:6px}
+.gbts button{height:48px;border:2px solid var(--c-bd);background:var(--card);border-radius:12px;font-size:19px;font-weight:900;cursor:pointer}
+.gbts button.nt{font-size:14px}
+.gbts button[aria-pressed="true"]{background:var(--c);border-color:var(--c);color:var(--c-on)}
+.gdesc{font-size:14px;color:var(--muted);margin-top:5px;min-height:20px}
+.gdesc b{color:var(--ink)}
+.crit{font-size:14px;line-height:1.5;margin-top:6px}
+.crit h4{font-size:13.5px;font-weight:900;margin:8px 0 3px;color:var(--c-ink)}
+.crit p{color:var(--ink2)}
+
+/* abas embaixo */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+.tabbar button{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:0;color:var(--muted);font-size:11.5px;font-weight:800;padding:4px 0;cursor:pointer;border-radius:10px}
+.tabbar button[aria-selected="true"]{color:var(--c-ink);background:var(--c-bg)}
+.tabbar button[aria-selected="true"] svg{color:var(--c)}
+.tabbar svg{width:22px;height:22px}
+@media(min-width:860px){.tabbar{left:50%;right:auto;transform:translateX(-50%);width:560px;border:1px solid var(--line);border-radius:18px 18px 0 0}}
+.rodape{font-size:12px;color:var(--muted);padding:16px 2px 4px;text-align:center}
+</style>
+</head>
+<body>
+
+<svg style="display:none" aria-hidden="true">
+  <symbol id="i-gota" viewBox="0 0 24 24"><path d="M12 3s-7 8-7 12a7 7 0 0 0 14 0c0-4-7-12-7-12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-seringa" viewBox="0 0 24 24"><path d="M19 3l2 2M18 4l-9 9M13 8l3 3M9 13l2 2-4 4-2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-pulso" viewBox="0 0 24 24"><polyline points="2,12 7,12 10,5 14,19 17,12 22,12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-vento" viewBox="0 0 24 24"><path d="M3 8h10a3 3 0 1 0-3-3M3 12h14a3 3 0 1 1-3 3M3 16h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-onda" viewBox="0 0 24 24"><path d="M2 16h3l2-9 3 9h3l2-6 2 6h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-olho" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><polyline points="6,9 12,15 18,9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 11v6M12 7.5v.5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="brand">Calculadoras UTI<small id="ver"></small></div>
+  <label class="peso vazio" id="pesobox"><input id="peso" inputmode="decimal" placeholder="peso" aria-label="Peso do paciente em kg" autocomplete="off"><span>kg</span></label>
+  <button type="button" class="btn-novo" id="novo">Novo<br>paciente</button>
+</header>
+<div id="banner" class="banner hide" role="alert"></div>
+
+<main>
+  <section id="p-vaso"><div class="lista duas" id="l-vaso"></div></section>
+  <section id="p-sed" class="hide"><div class="lista duas" id="l-sed"></div></section>
+
+  <section id="p-vent" class="hide" data-cat="vent">
+    <div class="lista">
+      <div class="bloco">
+        <div class="bh"><svg class="cat" width="20" height="20"><use href="#i-vento"/></svg><h3>Volume corrente</h3></div>
+        <div class="vgrid c2">
+          <div class="vf"><label>Sexo</label><div class="seg" id="v_sexo"><button type="button" data-v="M" aria-pressed="false">M</button><button type="button" data-v="F" aria-pressed="false">F</button></div></div>
+          <div class="vf"><label for="v_alt">Altura</label><div class="in"><input id="v_alt" inputmode="decimal"><span class="u">cm</span></div></div>
+        </div>
+        <div class="res hide" id="vt_res"></div>
+      </div>
+      <div class="bloco">
+        <div class="bh"><svg class="cat" width="20" height="20"><use href="#i-pulso"/></svg><h3>Mecânica</h3></div>
+        <div class="vgrid">
+          <div class="vf"><label for="v_vc">VC</label><div class="in"><input id="v_vc" inputmode="decimal"><span class="u">mL</span></div></div>
+          <div class="vf"><label for="v_peep">PEEP</label><div class="in"><input id="v_peep" inputmode="decimal"></div></div>
+          <div class="vf"><label for="v_plato" id="lb_plato">Platô</label><div class="in"><input id="v_plato" inputmode="decimal"></div></div>
+          <div class="vf"><label for="v_pico">Pico</label><div class="in"><input id="v_pico" inputmode="decimal"></div></div>
+          <div class="vf"><label for="v_fluxo">Fluxo</label><div class="in"><input id="v_fluxo" inputmode="decimal"><span class="u">L/min</span></div></div>
+        </div>
+        <div class="res hide" id="mec_res"></div>
+      </div>
+      <div class="bloco">
+        <div class="bh"><svg class="cat" width="20" height="20"><use href="#i-gota"/></svg><h3>Gasometria</h3></div>
+        <div class="vgrid">
+          <div class="vf"><label for="v_po2">PaO₂</label><div class="in"><input id="v_po2" inputmode="decimal"></div></div>
+          <div class="vf"><label for="v_fio2">FiO₂</label><div class="in"><input id="v_fio2" inputmode="decimal"><span class="u">%</span></div></div>
+          <div class="vf"><label for="v_pco2">PaCO₂</label><div class="in"><input id="v_pco2" inputmode="decimal"></div></div>
+        </div>
+        <div class="res hide" id="gas_res"></div>
+        <details class="mais" id="v_mais">
+          <summary>Mais</summary>
+          <div class="vgrid">
+            <div class="vf"><label for="v_idade">Idade</label><div class="in"><input id="v_idade" inputmode="decimal"></div></div>
+            <div class="vf"><label for="v_hb">Hb</label><div class="in"><input id="v_hb" inputmode="decimal"></div></div>
+            <div class="vf"><label for="v_sao2">SaO₂</label><div class="in"><input id="v_sao2" inputmode="decimal"><span class="u">%</span></div></div>
+            <div class="vf"><label for="v_alvo">PaO₂ alvo</label><div class="in"><input id="v_alvo" inputmode="decimal"></div></div>
+            <div class="vf"><label for="v_pb">P. barom.</label><div class="in"><input id="v_pb" inputmode="decimal" value="700"></div></div>
+          </div>
+          <div class="res hide" id="mais_res"></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="p-asinc" class="hide" data-cat="asinc">
+    <div class="leg">
+      <span><i style="color:var(--wave-p)">━</i> pressão</span><span><i style="color:var(--wave-f)">━</i> fluxo</span><span><i style="color:var(--wave-mk)">◯</i> achado</span>
+      <span class="esp"></span>
+      <button type="button" class="ib" data-info="asinc" aria-label="Informações"><svg width="20" height="20"><use href="#i-info"/></svg></button>
+    </div>
+    <div class="infobox hide" id="i-asinc" style="margin:0 0 10px">
+      <p>Desenhos esquemáticos, não traçados reais.</p>
+      <p>Ajuste o ventilador e trate dor, ansiedade e delirium antes de aprofundar sedação.</p>
+      <p>Fontes: Holanda MA et al., J Bras Pneumol 2018;44(4):321-333; tabela de identificação e resolução das assincronias de livro-texto de terapia intensiva.</p>
+    </div>
+    <div class="filtros" id="filtros">
+      <button type="button" data-f="todas" aria-pressed="true">Todas</button>
+      <button type="button" data-f="disparo" aria-pressed="false">Disparo</button>
+      <button type="button" data-f="fluxo" aria-pressed="false">Fluxo</button>
+      <button type="button" data-f="ciclagem" aria-pressed="false">Ciclagem</button>
+    </div>
+    <div class="lista" id="l-asinc"></div>
+  </section>
+
+  <section id="p-gcs" class="hide" data-cat="gcs">
+    <div class="lista">
+      <div class="bloco">
+        <div class="gtop">
+          <div class="gtot" id="g_tot">—</div>
+          <div><div class="gcomp" id="g_comp">O– V– M–</div><span class="pill neutro" id="g_chip">Escolha os três</span></div>
+          <div class="gacoes"><button type="button" class="gbtn prim" id="g_copiar">Copiar</button><button type="button" class="gbtn" id="g_limpar">Limpar</button></div>
+        </div>
+      </div>
+      <div class="bloco" id="g_linhas"></div>
+      <details class="bloco mais" style="margin-top:0">
+        <summary>Critérios completos</summary>
+        <div class="crit" id="g_crit"></div>
+      </details>
+    </div>
+  </section>
+
+  <footer class="rodape" id="rodape"></footer>
+</main>
+
+<nav class="tabbar" role="tablist" aria-label="Seções">
+  <button type="button" role="tab" data-t="vaso" data-cat="vaso" aria-selected="true"><svg><use href="#i-gota"/></svg>Vasoativas</button>
+  <button type="button" role="tab" data-t="sed" data-cat="sed" aria-selected="false"><svg><use href="#i-seringa"/></svg>Sedação</button>
+  <button type="button" role="tab" data-t="vent" data-cat="vent" aria-selected="false"><svg><use href="#i-vento"/></svg>Ventilação</button>
+  <button type="button" role="tab" data-t="asinc" data-cat="asinc" aria-selected="false"><svg><use href="#i-onda"/></svg>Assincronia</button>
+  <button type="button" role="tab" data-t="gcs" data-cat="gcs" aria-selected="false"><svg><use href="#i-olho"/></svg>Glasgow</button>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const VERSAO='v6 · 08/10/2026';
+
+/* ================= utilidades ================= */
+const num=v=>{if(v===null||v===undefined)return NaN;const s=String(v).trim().replace(/\s/g,'').replace(',','.');if(s==='')return NaN;const n=Number(s);return isFinite(n)?n:NaN;};
+const fmt=(n,d=2)=>!isFinite(n)?'—':n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtS=(n,d=2)=>!isFinite(n)?'—':n.toLocaleString('pt-BR',{minimumFractionDigits:0,maximumFractionDigits:d});
+const el=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem(k);return v===null?d:JSON.parse(v);}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+function toast(t){const e=el('toast');e.textContent=t;e.classList.add('on');clearTimeout(toast._t);toast._t=setTimeout(()=>e.classList.remove('on'),1500);}
+
+/* ================= drogas =================
+   Apresentações, diluições padrão e tetos: planilha "Calculadoras para UTI".
+   Onde um limite clínico é mais restritivo que a planilha, vale o clínico (fonteTeto diz qual). */
+const DROGAS=[
+{id:'nora',tab:'vaso',n:'Noradrenalina',mg:4,ml:4,dil:'SF ou SG 5%',amp:4,vol:250,cu:'mcg/mL',modo:'mcgkgmin',du:'mcg/kg/min',teto:1,fonteTeto:'definido por você',
+ ini:[0.1],passo:[0.05],iniF:'definido por você',fx:[0.1,1],fxF:'definida por você'},
+{id:'vaso',tab:'vaso',n:'Vasopressina',mg:20,ml:1,dil:'SF',amp:2,vol:100,cu:'UI/mL',modo:'uimin',du:'UI/min',semPeso:true,teto:0.07,fonteTeto:'bula',
+ ini:[0.01],passo:[0.005],intv:'10–15 min',iniF:'bula; na prática 0,03 fixa somada à noradrenalina',fx:[0.01,0.04],fxF:'bula; acima de 0,04 é resgate',
+ alerta:d=>d>0.04?['warn','Acima de 0,04 UI/min é terapia de resgate.']:null},
+{id:'adre',tab:'vaso',n:'Adrenalina',mg:1,ml:1,dil:'SF',amp:16,vol:250,cu:'mcg/mL',modo:'mcgkgmin',du:'mcg/kg/min',teto:2,fonteTeto:'planilha e bula',
+ ini:[0.05],passo:[0.05,0.2],intv:'10–15 min',iniF:'bula',fx:[0.05,2],fxF:'bula'},
+{id:'dobu',tab:'vaso',n:'Dobutamina',mg:250,ml:20,dil:'SF',amp:4,vol:250,cu:'mcg/mL',modo:'mcgkgmin',du:'mcg/kg/min',teto:20,fonteTeto:'planilha',
+ ini:[0.5,1],iniF:'bula',fx:[2.5,15],fxF:'bula'},
+{id:'milr',tab:'vaso',n:'Milrinone',mg:10,ml:10,dil:'SF',amp:1,vol:100,cu:'mcg/mL',modo:'mcgkgmin',du:'mcg/kg/min',teto:0.785,fonteTeto:'planilha, 1,13 mg/kg/dia',
+ ini:[0.5],iniF:'padrão da bula; ataque de 50 mcg/kg é opcional',fx:[0.375,0.75],fxF:'bula',info:['Ajustar na disfunção renal.']},
+{id:'nipr',tab:'vaso',n:'Nitroprussiato',mg:50,ml:2,dil:'SG 5%',amp:1,vol:250,cu:'mcg/mL',modo:'mcgkgmin',du:'mcg/kg/min',teto:10,fonteTeto:'planilha e bula',lim2:2,
+ ini:[0.3],iniF:'bula',fx:[0.5,10],fxF:'bula',info:['Proteger da luz; nada na mesma solução.'],
+ alerta:d=>d>2?['bad','Acima de 2 mcg/kg/min o cianeto passa da depuração.']:null},
+{id:'ntg',tab:'vaso',n:'Nitroglicerina',mg:50,ml:10,dil:'SG 5%',amp:1,vol:250,cu:'mcg/mL',modo:'mcgmin',du:'mcg/min',semPeso:true,teto:200,fonteTeto:'planilha',
+ ini:[5],passo:[5],intv:'3–5 min',iniF:'bula; sem resposta em 20, subir de 10 a 20',fx:[5,200],fxF:'titula do início ao teto'},
+{id:'dopa',tab:'vaso',n:'Dopamina',mg:50,ml:10,dil:'SF',amp:5,vol:250,cu:'mcg/mL',modo:'mcgkgmin',du:'mcg/kg/min',teto:20,fonteTeto:'planilha',
+ ini:[2,5],passo:[5,10],iniF:'bula',fx:[2,20],fxF:'bula'},
+
+{id:'fent',tab:'sed',n:'Fentanil',mg:0.5,ml:10,dil:'puro',amp:5,vol:0,cu:'mcg/mL',modo:'mcgh',du:'mcg/h',semPeso:true,teto:200,fonteTeto:'planilha',
+ ini:[50],iniF:'protocolos de UTI (YK Health, CHOC)',fxKgH:[0.7,10],fxF:'SCCM 2013, 0,7 a 10 mcg/kg/h'},
+{id:'mida',tab:'sed',n:'Midazolam',mg:50,ml:10,dil:'SF',amp:3,vol:150,cu:'mg/mL',modo:'mgkgh',du:'mg/kg/h',teto:null,
+ iniAbs:[1,2],iniAbsU:'mg/h',iniF:'protocolos de UTI (YK Health, CHOC)',fx:[0.02,0.1],fxF:'SCCM 2013',info:['Titular por RASS. Metabólito ativo acumula na disfunção renal.']},
+{id:'prop',tab:'sed',n:'Propofol',mg:200,ml:20,dil:'não diluir',amp:5,vol:0,cu:'mcg/mL',modo:'mcgkgmin',du:'mcg/kg/min',teto:67,fonteTeto:'limite clínico de UTI (4 mg/kg/h)',
+ ini:[5],passo:[5,10],intv:'5–10 min',iniF:'bula',fx:[5,50],fxF:'SCCM 2013',info:['Evitar mais de 48 h perto do teto: risco de PRIS.'],
+ alerta:d=>d>67?['bad','Acima de 4 mg/kg/h: risco de PRIS.']:null},
+{id:'keta',tab:'sed',n:'Cetamina',mg:100,ml:2,dil:'SF',amp:1,vol:100,cu:'mg/mL',modo:'mgkgh',du:'mg/kg/h',teto:1,fonteTeto:'planilha',
+ ini:[0.2,0.25],iniF:'estudo multicêntrico ACCP; protocolo VCMC',fx:[0.05,0.4],fxF:'SCCM 2013'},
+{id:'dexm',tab:'sed',n:'Dexmedetomidina',mg:0.2,ml:2,dil:'SF',amp:2,vol:100,cu:'mcg/mL',modo:'mcgkgh',du:'mcg/kg/h',teto:1.4,fonteTeto:'planilha',ataque:1,
+ ini:[0.2],iniF:'protocolo VCMC, sem ataque',fx:[0.2,0.7],fxF:'SCCM 2013',info:['Ataque de 1 mcg/kg em 10 min é habitualmente omitido em UTI.']},
+{id:'morf',tab:'sed',n:'Morfina',mg:10,ml:1,dil:'SF',amp:5,vol:100,cu:'mg/mL',modo:'mgh',du:'mg/h',semPeso:true,teto:null,info:['Metabólito ativo acumula na disfunção renal.']},
+{id:'rocu',tab:'sed',bnm:true,n:'Rocurônio',mg:50,ml:5,dil:'SF',amp:5,vol:250,cu:'mcg/mL',modo:'mcgkgmin',du:'mcg/kg/min',teto:12,fonteTeto:'planilha (bula vai até 16)',paralisante:true,
+ ini:[10,12],iniF:'bula',fx:[4,16],fxF:'bula',
+ lembrete:'Só com sedação e analgesia correndo e conferidas na bomba.'}
+];
+const FX={peso:[30,250],mlh:[0,999],amp:[0.1,50],vol:[0,1000]};
+
+
+/* ================= contas (funções puras) ================= */
+function conc(d,amp,vol){const massa=amp*d.mg, vf=vol>0?vol:amp*d.ml; if(!(vf>0))return NaN; const b=massa/vf; return d.cu==='mcg/mL'?b*1000:b;}
+function doseDe(d,c,mlh,p){switch(d.modo){case'mcgkgmin':return c*mlh/p/60;case'mcgkgh':case'mgkgh':return c*mlh/p;case'mcgh':case'mgh':return c*mlh;case'mcgmin':case'uimin':return c*mlh/60;}return NaN;}
+function mlhDe(d,c,dose,p){switch(d.modo){case'mcgkgmin':return dose*p*60/c;case'mcgkgh':case'mgkgh':return dose*p/c;case'mcgh':case'mgh':return dose/c;case'mcgmin':case'uimin':return dose*60/c;}return NaN;}
+const casas=d=>d.modo==='uimin'?3:(['mgkgh','mcgkgh','mcgkgmin'].includes(d.modo)?2:1);
+const V={
+  pbw:(sx,alt)=>(sx==='M'?50:45.5)+0.91*(alt-152.4),
+  pf:(po2,fio2)=>po2/(fio2/100),
+  aa:(po2,fio2,pco2,pb)=>(fio2/100)*(pb-47)-pco2/0.8-po2,
+  prev:(idade,pb)=>(106.6-0.25*idade)*pb/760,
+  cao2:(hb,sao2,po2)=>hb*1.34*(sao2/100)+po2*0.0031,
+  fio2alvo:(fio2,alvo,po2)=>fio2*alvo/po2
+};
+
+
+/* ================= drogas: estado e tela ================= */
+const st={};
+function estadoInicial(d){return {amp:String(d.amp),vol:String(d.vol),mlh:'',dose:'',anchor:'mlh',mlhCalc:NaN};}
+DROGAS.forEach(d=>st[d.id]=estadoInicial(d));
+const ICONE={vaso:'i-gota',sed:'i-seringa',bnm:'i-pulso'};
+const catDe=d=>d.bnm?'bnm':d.tab;
+const inp=(id,k)=>document.querySelector(`input[data-d="${id}"][data-k="${k}"]`);
+
+function cardHTML(d){
+  const cat=catDe(d);
+  return `<article class="bloco" data-cat="${cat}" id="c-${d.id}">
+    <div class="bh">
+      <svg class="cat" width="20" height="20"><use href="#${ICONE[cat]}"/></svg>
+      <h3>${d.n}</h3>${d.paralisante?'<span class="tag-par">Paralisante</span>':''}
+      <button type="button" class="conc" data-prep="${d.id}" aria-expanded="false"><span id="ps-${d.id}"></span><svg width="12" height="12"><use href="#i-chev"/></svg></button>
+      <button type="button" class="ib" data-info="${d.id}" aria-label="Informações"><svg width="20" height="20"><use href="#i-info"/></svg></button>
+    </div>
+    <div class="prep hide" id="pe-${d.id}">
+      <label>Ampolas <input data-d="${d.id}" data-k="amp" inputmode="decimal"></label>
+      <label>Volume final <input data-d="${d.id}" data-k="vol" inputmode="decimal"> mL</label>
+      <span class="nota" id="dl-${d.id}"></span>
+    </div>
+    <div class="pan">
+      <div class="io">
+        <label class="fld" id="fm-${d.id}"><span class="lb">mL/h</span><input data-d="${d.id}" data-k="mlh" inputmode="decimal" autocomplete="off"></label>
+        <span class="troca" aria-hidden="true">⇄</span>
+        <label class="fld" id="fd-${d.id}"><span class="lb">${d.du}</span><input data-d="${d.id}" data-k="dose" inputmode="decimal" autocomplete="off"></label>
+      </div>
+      <div class="estado hide" id="t-${d.id}"></div>
+      <div class="tg" id="r-${d.id}"></div>
+    </div>
+    <div class="alerta hide" id="w-${d.id}"></div>
+    <div class="infobox hide" id="i-${d.id}"></div>
+  </article>`;
+}
+function montaListas(){
+  el('l-vaso').innerHTML=DROGAS.filter(d=>d.tab==='vaso').map(cardHTML).join('');
+  el('l-sed').innerHTML=DROGAS.filter(d=>d.tab==='sed'&&!d.bnm).map(cardHTML).join('')
+    +'<div class="divisor" data-cat="bnm">Bloqueio neuromuscular</div>'+DROGAS.filter(d=>d.bnm).map(cardHTML).join('');
+  DROGAS.forEach(d=>{const s=st[d.id]; inp(d.id,'amp').value=s.amp; inp(d.id,'vol').value=s.vol; inp(d.id,'mlh').value=s.anchor==='mlh'?s.mlh:''; inp(d.id,'dose').value=s.anchor==='dose'?s.dose:'';});
+  DROGAS.forEach(calcDroga);
+}
+function pesoAtual(){const raw=el('peso').value, p=num(raw); return {p,vazio:raw.trim()==='',ok:isFinite(p)&&p>=FX.peso[0]&&p<=FX.peso[1]};}
+
+function faixaEf(d,P){
+  if(d.fxKgH) return P.ok?[d.fxKgH[0]*P.p,d.fxKgH[1]*P.p]:null;
+  return d.fx||null;
+}
+function estado(d,dose,P){
+  dose=Number(dose.toFixed(casas(d)));
+  const fx=faixaEf(d,P), T=x=>fmtS(x,3);
+  if(d.teto&&dose>d.teto) return ['bad','Acima do teto ('+T(d.teto)+')'];
+  if(d.lim2&&dose>d.lim2) return ['warn','Acima de '+T(d.lim2)+': cianeto acumula'];
+  if(fx){ if(dose<fx[0])return ['warn','Abaixo da faixa ('+T(fx[0])+')']; if(dose>fx[1])return ['warn','Acima da faixa ('+T(fx[1])+')']; return ['ok','']; }
+  return ['neutro',''];
+}
+function titHTML(d,P,c){
+  const T=x=>fmtS(x,3), ml=x=>fmtS(x,1);
+  const pronto=isFinite(c)&&(d.semPeso||P.ok);
+  const vm=v=>pronto?mlhDe(d,c,v,P.p):NaN;
+  const cel=(rotulo,doses,mls,unDose,sinal,extra)=>{
+    const temMl=mls.every(isFinite), sg=sinal||'';
+    const v=temMl?`${sg}${mls.map(ml).join('–')}<small>mL/h</small>`:`${sg}${doses.map(T).join('–')}<small>${unDose}</small>`;
+    const s=temMl?`${sg}${doses.map(T).join('–')}${unDose===d.du?'':' '+unDose}`:'';
+    return `<div><div class="k">${rotulo}</div><div class="v">${v}</div>${s?`<div class="s">${s}</div>`:''}${extra?`<div class="s">${extra}</div>`:''}</div>`;
+  };
+  const out=[];
+  if(d.ini) out.push(cel('Início',d.ini,d.ini.map(vm),d.du));
+  if(d.iniAbs) out.push(cel('Início',d.iniAbs,d.iniAbs.map(v=>isFinite(c)?v/c:NaN),d.iniAbsU));
+  if(d.passo) out.push(cel('Sobe',d.passo,d.passo.map(vm),d.du,'+',d.intv?'a cada '+d.intv:''));
+  if(d.teto) out.push(cel('Máx',[d.teto],[vm(d.teto)],d.du));
+  return out.join('');
+}
+
+function calcDroga(d){
+  const s=st[d.id], P=pesoAtual();
+  const amp=num(s.amp), vol=num(s.vol);
+  const ampOk=isFinite(amp)&&amp>=FX.amp[0]&&amp<=FX.amp[1];
+  const volOk=isFinite(vol)&&vol>=0&&vol<=FX.vol[1]&&(vol===0||!ampOk||vol>=amp*d.ml);
+  const prepOk=ampOk&&volOk;
+  inp(d.id,'amp').classList.toggle('err',!ampOk); inp(d.id,'vol').classList.toggle('err',!volOk);
+  const c=prepOk?conc(d,amp,vol):NaN;
+  if(prepOk){
+    el('ps-'+d.id).textContent=`${fmt(c,d.cu==='mcg/mL'?0:2)} ${d.cu}`;
+    el('dl-'+d.id).textContent=fmtS(amp,1)+' amp '+(vol>0?'em '+fmtS(vol,0)+' mL. Diluente '+fmtS(vol-amp*d.ml,1)+' mL de '+d.dil+'.':'puras.')+' Volume final 0 = puro.';
+  } else {
+    el('ps-'+d.id).textContent='Preparo inválido';
+    el('dl-'+d.id).textContent=!volOk&&ampOk?'O volume final não pode ser menor que o volume das ampolas ('+fmtS(amp*d.ml,1)+' mL).':'Volume final 0 = puro.';
+  }
+  el('c-'+d.id).querySelector('.conc').classList.toggle('err',!prepOk);
+
+  const pesoOk=d.semPeso||P.ok;
+  let mlh=NaN,dose=NaN,errM=false,errD=false;
+  if(s.anchor==='dose'){
+    const v=num(s.dose); if(s.dose.trim()!==''&&!(isFinite(v)&&v>=0))errD=true;
+    else if(isFinite(v)){dose=v; if(pesoOk&&isFinite(c))mlh=mlhDe(d,c,v,P.p); if(isFinite(mlh)&&mlh>FX.mlh[1])errM=true;}
+  } else {
+    const v=num(s.mlh); if(s.mlh.trim()!==''&&!(isFinite(v)&&v>=FX.mlh[0]&&v<=FX.mlh[1]))errM=true;
+    else if(isFinite(v)){mlh=v; if(pesoOk&&isFinite(c))dose=doseDe(d,c,v,P.p);}
+  }
+  s.mlhCalc=s.anchor==='dose'?mlh:NaN;
+
+  const iM=inp(d.id,'mlh'), iD=inp(d.id,'dose');
+  const semPesoMsg=(!pesoOk)?(P.vazio?'falta peso':'confira peso'):'';
+  if(s.anchor==='dose'){ if(document.activeElement!==iM){iM.value=isFinite(mlh)?fmt(mlh,1):''; iM.placeholder=semPesoMsg;} iD.placeholder=''; }
+  else { if(document.activeElement!==iD){iD.value=isFinite(dose)?fmt(dose,casas(d)):''; iD.placeholder=s.mlh.trim()!==''?semPesoMsg:'';} iM.placeholder=''; }
+  const fm=el('fm-'+d.id), fd=el('fd-'+d.id);
+  fm.classList.toggle('typed',s.anchor==='mlh'); fm.classList.toggle('calc',s.anchor!=='mlh');
+  fd.classList.toggle('typed',s.anchor==='dose'); fd.classList.toggle('calc',s.anchor!=='dose');
+  fm.classList.toggle('err',errM); fd.classList.toggle('err',errD);
+
+  const temEntrada=(s.anchor==='mlh'?s.mlh:s.dose).trim()!=='';
+  let cls=null,txt='';
+  if(!prepOk){cls='bad';txt='Preparo inválido';}
+  else if(errM||errD){cls='bad';txt='Valor fora de faixa: confira';}
+  else if(!pesoOk&&temEntrada){cls=P.vazio?'warn':'bad';txt=P.vazio?'Informe o peso':'Peso fora de faixa: confira';}
+  else if(isFinite(dose)){[cls,txt]=estado(d,dose,P);}
+  fd.classList.remove('s-ok','s-warn','s-bad');
+  if(isFinite(dose)&&!errM&&!errD&&prepOk&&cls&&cls!=='neutro')fd.classList.add('s-'+cls);
+  const est=el('t-'+d.id);
+  if(txt){est.className='estado '+cls;est.textContent=txt;} else est.className='estado hide';
+  const tg=el('r-'+d.id), th=titHTML(d,P,c); tg.innerHTML=th; tg.classList.toggle('hide',!th);
+
+  let al=null;
+  if(d.lembrete&&temEntrada)al=['warn',d.lembrete];
+  else if(d.alerta&&isFinite(dose))al=d.alerta(Number(dose.toFixed(casas(d))));
+  const w=el('w-'+d.id); if(al){w.className='alerta '+al[0];w.textContent=al[1];} else w.className='alerta hide';
+
+  const T=x=>fmtS(x,3), linhas=[];
+  if(d.ini||d.iniAbs)linhas.push(`Início: ${d.iniF}.`);
+  if(d.fx)linhas.push(`Faixa ${T(d.fx[0])} a ${T(d.fx[1])} ${d.du}: ${d.fxF}.`);
+  if(d.fxKgH)linhas.push(`Faixa: ${d.fxF}.`);
+  linhas.push(d.teto?`Teto: ${d.fonteTeto}.`:'Sem teto definido.');
+  (d.info||[]).forEach(x=>linhas.push(x));
+  if(d.lembrete)linhas.push(d.lembrete);
+  if(d.ataque){const v=d.ataque*P.p/c; linhas.push(P.ok&&isFinite(v)?`Ataque de ${d.ataque} mcg/kg com ${fmtS(P.p,1)} kg: ${fmt(v,1)} mL (${fmt(d.ataque*P.p,0)} mcg).`:'Ataque: informe o peso para calcular.');}
+  el('i-'+d.id).innerHTML=linhas.map(x=>`<p>${x}</p>`).join('');
+}
+function congela(d){const s=st[d.id]; if(s.anchor==='dose'&&isFinite(s.mlhCalc)){const v=Math.round(s.mlhCalc*10)/10; s.mlh=fmt(v,1); s.anchor='mlh'; inp(d.id,'mlh').value=s.mlh;}}
+function atualizaPeso(){const P=pesoAtual(), box=el('pesobox'); box.classList.toggle('vazio',P.vazio); box.classList.toggle('invalido',!P.vazio&&!P.ok);}
+
+/* ================= ventilação ================= */
+let sexo=null;
+const VF={v_alt:[120,230],v_vc:[100,1500],v_peep:[0,30],v_plato:[5,60],v_pico:[5,90],v_fluxo:[10,150],
+  v_po2:[20,700],v_fio2:[21,100],v_pco2:[10,150],v_pb:[500,800],v_idade:[14,110],v_hb:[3,25],v_sao2:[30,100],v_alvo:[40,300]};
+function lerVent(){
+  const r={};
+  for(const id in VF){const e=el(id),raw=e.value.trim(),v=num(raw),[a,b]=VF[id],ok=raw!==''&&isFinite(v)&&v>=a&&v<=b;
+    e.closest('.vf').classList.toggle('err',raw!==''&&!ok); r[id]=ok?v:NaN;}
+  r.sexo=sexo; return r;
+}
+const rr=(k,sub,val,dec,unit,cls)=>`<div class="rr ${cls||''}"><span class="k">${k}${sub?`<small>${sub}</small>`:''}</span><span class="v">${fmt(val,dec)}${unit?`<small>${unit}</small>`:''}</span></div>`;
+const rrMsg=t=>`<div class="rr bad"><span class="k">${t}</span></div>`;
+function setRes(id,arr){const e=el(id); e.innerHTML=arr.join(''); e.classList.toggle('hide',!arr.length);}
+function calcVent(){
+  const r=lerVent();
+  const pbw=(r.sexo&&isFinite(r.v_alt))?V.pbw(r.sexo,r.v_alt):NaN;
+  setRes('vt_res', isFinite(pbw)&&pbw>0?[rr('Peso predito','',pbw,1,'kg'),
+    `<div class="escada">${[6,7,8].map(k=>`<div class="degrau"><span>${k} mL/kg</span><b>${fmt(pbw*k,0)}<small>mL</small></b></div>`).join('')}</div>`]:[]);
+
+  const m=[];
+  const pv=el('v_plato').closest('.vf'); pv.classList.remove('s-ok','s-bad');
+  if(isFinite(r.v_plato)){pv.classList.add(r.v_plato>30?'s-bad':'s-ok'); el('lb_plato').textContent=r.v_plato>30?'Platô > 30':'Platô';} else el('lb_plato').textContent='Platô';
+  const dp=r.v_plato-r.v_peep;
+  if(isFinite(dp)){ if(dp<=0) m.push(rrMsg('Platô menor ou igual à PEEP: confira')); else m.push(rr('Driving pressure','alvo até 15',dp,0,'cmH₂O',dp>15?'bad':'ok')); }
+  const vtkg=r.v_vc/pbw;
+  if(isFinite(vtkg)&&isFinite(pbw)&&pbw>0) m.push(rr('VC por peso predito','alvo 4 a 8',vtkg,1,'mL/kg',vtkg>8?'bad':vtkg<4?'warn':'ok'));
+  const cst=(isFinite(dp)&&dp>0)?r.v_vc/dp:NaN;
+  if(isFinite(cst)) m.push(rr('Complacência estática','',cst,1,'mL/cmH₂O'));
+  const gr=r.v_pico-r.v_plato;
+  if(isFinite(gr)&&gr<0) m.push(rrMsg('Pico menor que o platô: confira'));
+  const rva=(isFinite(gr)&&gr>=0)?gr/(r.v_fluxo/60):NaN;
+  if(isFinite(rva)) m.push(rr('Resistência','só VCV com fluxo constante',rva,1,'cmH₂O/L/s'));
+  const tau=(cst/1000)*rva;
+  if(isFinite(tau)) m.push(rr('Constante de tempo','3τ = '+fmt(3*tau,2)+' s para esvaziar ~95%',tau,2,'s'));
+  setRes('mec_res',m);
+
+  const g=[];
+  const pf=V.pf(r.v_po2,r.v_fio2);
+  if(isFinite(pf)){const [c,t]=pf>300?['ok','acima de 300']:pf>200?['warn','SDRA leve se PEEP ≥ 5']:pf>100?['warn','SDRA moderada se PEEP ≥ 5']:['bad','SDRA grave se PEEP ≥ 5']; g.push(rr('Relação P/F',t,pf,0,'',c));}
+  const aa=V.aa(r.v_po2,r.v_fio2,r.v_pco2,r.v_pb); if(isFinite(aa)) g.push(rr('Gradiente A-a','',aa,0,'mmHg'));
+  setRes('gas_res',g);
+
+  const x=[];
+  const prev=V.prev(r.v_idade,r.v_pb); if(isFinite(prev)) x.push(rr('PaO₂ prevista p/ idade','',prev,0,'mmHg'));
+  const cao2=V.cao2(r.v_hb,r.v_sao2,r.v_po2); if(isFinite(cao2)) x.push(rr('CaO₂','',cao2,1,'mL/dL'));
+  const fn=V.fio2alvo(r.v_fio2,r.v_alvo,r.v_po2); if(isFinite(fn)) x.push(rr('FiO₂ p/ PaO₂ alvo',fn>100?'acima de 100%: FiO₂ sozinha não chega':'regra de três',fn,0,'%',fn>100?'bad':''));
+  setRes('mais_res',x);
+}
+el('v_sexo').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sexo=b.dataset.v;
+  el('v_sexo').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));calcVent();});
+
+/* ================= assincronias ================= */
+const T=8, N=800;
+const gau=(t,c,w)=>{const z=(t-c)/w; return Math.exp(-z*z);};
+function psv(t0,t1,tEnd,o={}){
+  const PS=o.PS??12, rise=o.rise??0.07, Fpk=o.Fpk??1, tauI=o.tauI??0.45, Fe=o.Fe??0.9, tauE=o.tauE??0.35;
+  const pEnd=PS*(1-Math.exp(-(t1-t0)/rise));
+  return {
+    p:t=> (t<t0||t>=tEnd)?0 : t<t1? PS*(1-Math.exp(-(t-t0)/rise)) : pEnd*Math.exp(-(t-t1)/0.06),
+    f:t=> (t<t0||t>=tEnd)?0 : t<t1? Fpk*(1-Math.exp(-(t-t0)/0.04))*Math.exp(-(t-t0)/tauI) : -Fe*(1-Math.exp(-(t-t1)/0.035))*Math.exp(-(t-t1)/tauE)
+  };
+}
+function vcv(t0,t1,tEnd,o={}){
+  const Fi=o.Fi??0.8, P0=o.P0??6, Pk=o.Pk??16, Fe=o.Fe??1.0, tauE=o.tauE??0.35, slope=(Pk-P0)/(t1-t0);
+  return {
+    p:t=> (t<t0||t>=tEnd)?0 : t<t1? (P0+slope*(t-t0))*(1-Math.exp(-(t-t0)/0.025)) : Pk*Math.exp(-(t-t1)/0.06),
+    f:t=> (t<t0||t>=tEnd)?0 : t<t1? Fi*(1-Math.exp(-(t-t0)/0.02)) : -Fe*(1-Math.exp(-(t-t1)/0.035))*Math.exp(-(t-t1)/tauE)
+  };
+}
+const trig=t0=>t=>-1.2*gau(t,t0-0.05,0.045);
+const serie=fn=>{const a=new Array(N+1);for(let i=0;i<=N;i++)a[i]=fn(i*T/N);return a;};
+const soma=fns=>t=>fns.reduce((s,f)=>s+f(t),0);
+
+function onda(def){const d=def(); return {P:serie(soma(d.p)),F:serie(soma(d.f)),marks:d.marks||[],notas:d.notas||[]};}
+
+
+function onda(def){const d=def();return {P:serie(soma(d.p)),F:serie(soma(d.f)),marks:d.marks||[],notas:d.notas||[]};}
+function svgOnda(o,mini){
+  const W=340,H=200,X0=mini?6:42,X1=mini?334:334,x=t=>X0+(t/T)*(X1-X0);
+  const PB=86,PSC=2.6,FZ=152,FSC=30,yP=v=>PB-v*PSC,yF=v=>FZ-v*FSC;
+  const pts=(arr,yf)=>arr.map((v,i)=>x(i*T/N).toFixed(1)+','+yf(v).toFixed(1)).join(' ');
+  const ve=' vector-effect="non-scaling-stroke"';
+  let s=`<svg viewBox="0 0 ${W} ${H}" class="onda${mini?' mini':''}" role="img" aria-label="Curvas esquemáticas de pressão e fluxo">`;
+  s+=`<line x1="${X0}" y1="${PB}" x2="${X1}" y2="${PB}" class="base"${ve}/><line x1="${X0}" y1="${FZ}" x2="${X1}" y2="${FZ}" class="base"${ve}/>`;
+  if(!mini)s+=`<text x="3" y="${PB-34}" class="lbl">Pressão</text><text x="3" y="${PB+3}" class="lbl2">PEEP</text><text x="3" y="${FZ-26}" class="lbl">Fluxo</text><text x="3" y="${FZ+3}" class="lbl2">zero</text>`;
+  s+=`<polyline points="${pts(o.P,yP)}" class="cp"${ve}/><polyline points="${pts(o.F,yF)}" class="cf"${ve}/>`;
+  let topo='';
+  for(const m of o.marks){
+    const i=Math.max(0,Math.min(N,Math.round(m.t/T*N))), cx=x(m.t), cy=m.tr==='p'?yP(o.P[i]):yF(o.F[i]);
+    const rx=(m.rx||10)*(mini?1.6:1), ry=(m.ry||8)*(mini?1.6:1);
+    if(m.txt&&!mini){
+      const lx=x(m.lt??m.t), ly=m.ly, acima=ly<cy, y1=acima?cy-ry:cy+ry, y2=acima?ly+3:ly-10, x2=m.a==='start'?lx-2:m.a==='end'?lx+2:lx;
+      s+=`<line x1="${cx.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" class="ld"${ve}/>`;
+      topo+=`<text x="${lx.toFixed(1)}" y="${ly}" class="mt" text-anchor="${m.a||'middle'}">${m.txt}</text>`;
+    }
+    s+=`<ellipse cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" rx="${rx}" ry="${ry}" class="mk"${ve}/>`;
+    if(mini)break;
+  }
+  s+=topo;
+  if(!mini)for(const n of o.notas)s+=`<text x="${x(n.t).toFixed(1)}" y="${n.y}" class="nt" text-anchor="middle">${n.txt}</text>`;
+  return s+'</svg>';
+}
+
+const ASINC_V5=[
+{id:'normal',nome:'Sincronia (referência)',fase:'ref',faseTxt:'Referência',modo:'PSV',
+ chave:'Cada esforço dispara um ciclo e o fluxo expiratório volta a zero antes do próximo.',
+ onda:()=>{const T0=[0.6,3.3,6.0]; const b=T0.map((a,i)=>psv(a,a+0.9,T0[i+1]??9));
+   return {p:[...b.map(x=>x.p),...T0.map(trig)],f:b.map(x=>x.f),
+     marks:[{t:3.25,tr:'p',txt:'esforço dispara o ciclo',lt:3.4,ly:108,a:'start',rx:9,ry:7}]};},
+ identificar:['Pequena queda na pressão logo antes de cada ciclo: é o esforço do paciente disparando o ventilador.','O fluxo expiratório chega a zero antes do próximo disparo.','Use como comparação para os padrões abaixo.']},
+
+{id:'ineficaz',nome:'Esforço ineficaz',fase:'disparo',faseTxt:'Disparo',modo:'PSV',
+ chave:'Na expiração, o fluxo sobe em direção ao zero e nenhum ciclo é entregue.',
+ onda:()=>{const T0=[0.5,3.6,6.7], o={tauE:0.9,Fe:0.8,tauI:0.5}; const b=T0.map((a,i)=>psv(a,a+1.0,T0[i+1]??9,o)); const ef=[2.25,5.35];
+   return {p:[...b.map(x=>x.p),...T0.map(trig),...ef.map(c=>t=>-1.6*gau(t,c,0.13))],
+     f:[...b.map(x=>x.f),...ef.map(c=>t=>0.33*gau(t,c,0.15))],
+     marks:[{t:2.25,tr:'p',txt:'queda sem disparo',lt:2.25,ly:108,rx:9,ry:7},
+            {t:2.25,tr:'f',txt:'fluxo sobe',lt:2.25,ly:132,rx:10,ry:8},
+            {t:3.55,tr:'f',txt:'não zera',lt:3.45,ly:178,a:'end',rx:8,ry:6}]};},
+ identificar:['No fluxo: durante a expiração, o fluxo sobe em direção ao zero sem que o ventilador dispare. É mais fácil ver no fluxo do que na pressão.','Na pressão: pequena queda no mesmo instante, sem ciclo.','Fluxo expiratório que não chega a zero antes do próximo ciclo sugere auto-PEEP.','À beira-leito: mão no tórax ou abdome; o movimento não é seguido de ciclo.'],
+ causas:['Auto-PEEP por hiperinsuflação dinâmica (DPOC, asma).','Sensibilidade de disparo pouco sensível.','Sedação profunda, drive baixo.','Suporte excessivo: PS alta, VC alto.'],
+ corrigir:['Deixar a sensibilidade o mais sensível possível sem gerar autodisparo; preferir disparo a fluxo ao disparo a pressão.','Com auto-PEEP: subir a PEEP com cautela, vendo se os esforços ineficazes somem. Raramente acima de 10 cmH₂O.','Se o VC está alto: reduzir a PS (PSV, PCV); em VCV, reduzir o tempo inspiratório.','Rever a sedação: sedação profunda é preditora de esforço ineficaz.']},
+
+{id:'autodisparo',nome:'Autodisparo',fase:'disparo',faseTxt:'Disparo',modo:'Assistido',
+ chave:'Ciclos sem esforço do paciente antes deles; FR acima do esperado.',
+ onda:()=>{const T0=[0.35,2.15,3.95,5.75,7.55], Ti=0.7; const b=T0.map((a,i)=>psv(a,a+Ti,T0[i+1]??9,{tauE:0.3}));
+   const expo=t=>{for(let i=0;i<T0.length;i++){const a=T0[i]+Ti+0.2,e=(T0[i+1]??9); if(t>=a&&t<e)return Math.min(1,(t-a)/0.12);} return 0;};
+   const osc=amp=>t=>amp*Math.sin(2*Math.PI*(t-0.15)/0.6)*expo(t);
+   return {p:[...b.map(x=>x.p),osc(0.6)],f:[...b.map(x=>x.f),osc(0.1)],
+     marks:[{t:3.95,tr:'p',txt:'nenhum esforço antes',lt:3.95,ly:108,rx:8,ry:7},
+            {t:5.25,tr:'f',txt:'oscilação cardíaca dispara o ciclo',lt:5.25,ly:195,rx:24,ry:8}]};},
+ identificar:['Ciclos disparados sem a queda de pressão do esforço antes deles.','FR do ventilador maior que a frequência de esforços do paciente.','Oscilações no fluxo e na pressão durante a expiração (batimento cardíaco, água no circuito), ou fluxo expiratório que não fecha (vazamento).'],
+ causas:['Vazamento: cuff, conexões, fístula por dreno de tórax.','Condensado de água no circuito.','Oscilações cardiogênicas transmitidas à via aérea.','Sensibilidade sensível demais.'],
+ corrigir:['Procurar e corrigir vazamento: pressão do cuff, conexões, fístula.','Esvaziar o condensado do circuito.','Tornar o disparo menos sensível até sumirem os ciclos sem esforço.']},
+
+{id:'duplo',nome:'Duplo disparo',fase:'disparo',faseTxt:'Disparo',modo:'VCV',
+ chave:'Dois ciclos colados por um único esforço; o volume se empilha.',
+ onda:()=>{const b1=vcv(0.5,1.3,3.2),b2=vcv(3.2,4.0,4.1),b3=vcv(4.1,4.9,6.7,{P0:12,Pk:24,Fe:1.25}),b4=vcv(6.7,7.5,9);
+   return {p:[b1.p,b2.p,b3.p,b4.p,trig(0.5),trig(3.2),trig(6.7)],f:[b1.f,b2.f,b3.f,b4.f],
+     marks:[{t:4.86,tr:'p',txt:'2º ciclo: pico maior',lt:5.05,ly:12,a:'start',rx:9,ry:7},
+            {t:4.05,tr:'f',txt:'expiração quase ausente',lt:4.05,ly:108,rx:7,ry:10}]};},
+ identificar:['Dois ciclos seguidos com expiração muito curta ou ausente entre eles.','O primeiro é disparado pelo paciente; o segundo começa antes do fluxo expiratório voltar a zero.','Volume empilhado: o pico de pressão do segundo ciclo é maior.'],
+ causas:['Tempo inspiratório neural do paciente maior que o do ventilador.','VC ou fluxo abaixo da demanda, comum na SDRA com VC baixo.','Ciclagem precoce.'],
+ corrigir:['Aumentar o tempo inspiratório: ajuste direto do Ti em VCV e PCV.','Em PSV: reduzir o critério de ciclagem (% do pico de fluxo) para alongar a inspiração.','Tratar a demanda: dor, ansiedade, febre, acidose.','Na SDRA grave, se o empilhamento persistir apesar dos ajustes, a ventilação deixa de ser protetora: discutir bloqueio neuromuscular.']},
+
+{id:'reverso',nome:'Disparo reverso',fase:'disparo',faseTxt:'Disparo',modo:'VCV controlado',
+ chave:'A máquina dispara primeiro; o esforço do paciente aparece depois, no meio da inspiração.',
+ onda:()=>{const o={Pk:17}; const b1=vcv(0.4,1.3,2.9,o),b2=vcv(2.9,3.8,5.3,o),b3=vcv(5.3,6.2,6.32,o),b4=vcv(6.32,7.1,9,{P0:11,Pk:24,Fe:1.25});
+   return {p:[b1.p,b2.p,b3.p,b4.p,t=>-2.8*gau(t,3.5,0.14),t=>-2.6*gau(t,6.0,0.14)],f:[b1.f,b2.f,b3.f,b4.f],
+     marks:[{t:3.5,tr:'p',txt:'esforço vem depois do disparo',lt:3.5,ly:12,rx:9,ry:8},
+            {t:6.95,tr:'p',txt:'empilhou',lt:6.75,ly:12,a:'end',rx:8,ry:7}]};},
+ identificar:['Ciclo controlado, sem queda de esforço antes do disparo.','Queda côncava na pressão durante a inspiração ou no início da expiração: o músculo contraiu depois da insuflação.','Pode disparar um segundo ciclo empilhado e aparecer como duplo disparo.','Confirmação definitiva só com pressão esofágica.'],
+ causas:['Reflexo desencadeado pela própria insuflação mecânica (entrainment).','Descrito em modo controlado, em pacientes sedados.'],
+ corrigir:['Mesma estratégia do duplo disparo: aumentar o tempo inspiratório em VCV e PCV.','Se houver empilhamento, conduzir como duplo disparo.','Conduta específica ainda pouco estabelecida.']},
+
+{id:'fluxoinsuf',nome:'Fluxo insuficiente',fase:'fluxo',faseTxt:'Fluxo',modo:'VCV',
+ chave:'A pressão afunda, fica côncava, durante a inspiração.',
+ onda:()=>{const T0=[0.5,3.2,5.9], Ti=1.0; const b=T0.map((a,i)=>vcv(a,a+Ti,T0[i+1]??9,{Pk:17}));
+   const esc=a=>t=>(t>=a&&t<a+Ti)?-5*Math.sin(Math.PI*(t-a)/Ti):0;
+   return {p:[...b.map(x=>x.p),...T0.map(trig),esc(3.2),esc(5.9)],f:b.map(x=>x.f),
+     marks:[{t:3.7,tr:'p',txt:'pressão escavada',lt:3.7,ly:12,rx:11,ry:9}],notas:[{t:1.0,y:12,txt:'normal'}]};},
+ identificar:['Em VCV, a curva de pressão fica côncava, escavada, em vez de subir reta: o paciente puxa mais fluxo do que o ventilador entrega.','Em PCV ou PSV: pressurização lenta, a pressão demora a atingir o alvo.','Clínica de fome de ar: musculatura acessória, desconforto.'],
+ causas:['Fluxo ajustado abaixo da demanda (VCV).','Demanda alta: febre, dor, ansiedade, acidose.','Em PCV ou PSV, pressão baixa ou rise time lento.'],
+ corrigir:['Reduzir a demanda: tratar febre, dor, ansiedade, acidose.','Em VCV: aumentar o fluxo inspiratório ou trocar para PCV ou PSV, que têm fluxo livre.','Em PCV ou PSV: encurtar o rise time (pressurização mais rápida) e rever o nível de pressão.']},
+
+{id:'fluxoexc',nome:'Fluxo excessivo',fase:'fluxo',faseTxt:'Fluxo',modo:'PSV',
+ chave:'Espícula de pressão logo no início da inspiração.',
+ onda:()=>{const T0=[0.6,3.3,6.0]; const b=T0.map((a,i)=>psv(a,a+0.9,T0[i+1]??9,i===0?{}:{Fpk:1.35,tauI:0.3,rise:0.03}));
+   const sobre=a=>t=>3.4*gau(t,a+0.09,0.045);
+   return {p:[...b.map(x=>x.p),...T0.map(trig),sobre(3.3),sobre(6.0)],f:b.map(x=>x.f),
+     marks:[{t:3.39,tr:'p',txt:'espícula no início',lt:3.6,ly:12,a:'start',rx:8,ry:8}],notas:[{t:1.05,y:12,txt:'normal'}]};},
+ identificar:['Em PCV ou PSV, a pressão ultrapassa o alvo logo no início da inspiração: pressurização excessiva (overshoot).','Pico de fluxo inicial alto e estreito.'],
+ causas:['Rise time curto demais.','Pressão acima da PEEP alta para a demanda.','Em VCV, fluxo ajustado acima da demanda.'],
+ corrigir:['Em VCV: reduzir o fluxo ajustado.','Em PCV ou PSV: aumentar o rise time (pressurização mais lenta) ou reduzir a pressão acima da PEEP.']},
+
+{id:'precoce',nome:'Ciclagem precoce',fase:'ciclagem',faseTxt:'Ciclagem',modo:'PSV',
+ chave:'A máquina termina antes do paciente: entalhe no começo do fluxo expiratório.',
+ onda:()=>{const T0=[0.6,3.3,6.0], Ti=0.55; const b=T0.map((a,i)=>psv(a,a+Ti,T0[i+1]??9,{tauI:0.8}));
+   const pd=a=>t=>-1.6*gau(t,a+Ti+0.14,0.07), fn=a=>t=>0.45*gau(t,a+Ti+0.13,0.08);
+   return {p:[...b.map(x=>x.p),...T0.map(trig),...T0.map(pd)],f:[...b.map(x=>x.f),...T0.map(fn)],
+     marks:[{t:3.3+Ti+0.13,tr:'f',txt:'entalhe: ainda inspirando',lt:3.98,ly:108,rx:9,ry:8}]};},
+ identificar:['Logo após o fim da inspiração, o fluxo expiratório faz um entalhe para cima: o paciente ainda está inspirando.','Na pressão, pequena queda abaixo da PEEP no início da expiração.','Pode evoluir para duplo disparo.'],
+ causas:['Tempo inspiratório do ventilador menor que o neural.','Critério de ciclagem alto demais em PSV.','Mecânica restritiva com esforço longo.'],
+ corrigir:['Em PSV: reduzir o critério de ciclagem (% do pico de fluxo).','Em VCV e PCV: aumentar o Ti.','Aumentar a PS também tende a alongar o Ti.']},
+
+{id:'tardia',nome:'Ciclagem tardia',fase:'ciclagem',faseTxt:'Ciclagem',modo:'PSV',
+ chave:'A máquina insufla além do que o paciente quer: espícula de pressão no fim da inspiração.',
+ onda:()=>{const T0=[0.5,3.4,6.3], Ti=1.5; const b=T0.map((a,i)=>psv(a,a+Ti,T0[i+1]??9,{tauI:1.1,tauE:0.8,Fe:0.85}));
+   const sp=a=>t=>3.2*gau(t,a+Ti-0.07,0.055), fd=a=>t=>-0.22*gau(t,a+Ti-0.1,0.07);
+   return {p:[...b.map(x=>x.p),...T0.map(trig),...T0.map(sp)],f:[...b.map(x=>x.f),...T0.map(fd)],
+     marks:[{t:3.4+Ti-0.07,tr:'p',txt:'espícula: quer expirar',lt:4.7,ly:12,a:'end',rx:8,ry:8}]};},
+ identificar:['Espícula de pressão no fim da inspiração: o paciente contrai a musculatura expiratória contra o ventilador.','O fluxo inspiratório cai devagar e despenca pouco antes de ciclar.','Típico de DPOC em PSV.'],
+ causas:['Mecânica obstrutiva: o fluxo cai devagar e demora a atingir o critério de ciclagem.','Critério de ciclagem baixo demais.','PS alta.','Vazamento: o fluxo não cai.'],
+ corrigir:['Em PSV: aumentar o critério de ciclagem; na DPOC, de 25% para 40 a 50%.','Reduzir a PS, o que encurta o Ti.','Em VCV e PCV: reduzir o Ti.','Corrigir vazamento.']}
+];
+
+const ONDA_DE={}; ASINC_V5.forEach(a=>ONDA_DE[a.id]=a.onda);
+/* identificação e resolução: tabela de livro-texto enviada pelo usuário (reescrita) e Holanda 2018 (disparo reverso) */
+const ASINC=[
+ {id:'ineficaz',nome:'Disparo ineficaz',fase:'disparo',iden:'O paciente faz esforço, mas o ventilador não entrega o ciclo.',
+  res:[[null,'Deixar o disparo mais sensível, sem chegar ao autodisparo.'],[null,'Procurar auto-PEEP, a principal causa de confusão.']]},
+ {id:'duplo',nome:'Duplo disparo',fase:'disparo',iden:'Dois ciclos seguidos para um único esforço.',
+  res:[['VCV','Aumentar o fluxo e/ou o VC.'],['PCV','Aumentar o tempo inspiratório e/ou a pressão.'],['PSV','Aumentar a pressão ou baixar o % de ciclagem.']]},
+ {id:'autodisparo',nome:'Autodisparo',fase:'disparo',iden:'FR acima da ajustada, com ciclos sem esforço do paciente antes.',
+  res:[[null,'Tirar o condensado do circuito.'],[null,'Corrigir vazamento.'],[null,'Deixar o disparo menos sensível.']]},
+ {id:'reverso',nome:'Disparo reverso',fase:'disparo',iden:'Ciclo controlado; o esforço do paciente aparece depois, no meio da inspiração.',
+  res:[['VCV/PCV','Aumentar o tempo inspiratório.'],[null,'Se empilhar ciclos, conduzir como duplo disparo.']]},
+ {id:'fluxoinsuf',nome:'Fluxo insuficiente',fase:'fluxo',iden:'Pressão escavada na inspiração (VCV); desconforto, musculatura acessória.',
+  res:[[null,'Tratar febre, dor, ansiedade e acidose.'],['VCV','Aumentar o fluxo.'],[null,'Ou trocar para PCV ou PSV.']]},
+ {id:'fluxoexc',nome:'Fluxo excessivo',fase:'fluxo',iden:'VCV: pico de pressão precoce. PCV/PSV: pressão passa do alvo no início.',
+  res:[['VCV','Reduzir o fluxo.'],['PCV/PSV','Pressurização mais lenta (rise time, rampa, slope).']]},
+ {id:'precoce',nome:'Ciclagem prematura',fase:'ciclagem',iden:'A inspiração acaba cedo; entalhe no começo do fluxo expiratório.',
+  res:[['VCV','Reduzir o fluxo e/ou aumentar o VC.'],['PCV','Aumentar o tempo inspiratório e/ou a pressão.'],['PSV','Aumentar a pressão ou baixar o % de ciclagem.']]},
+ {id:'tardia',nome:'Ciclagem tardia',fase:'ciclagem',iden:'Inspiração prolongada; espícula de pressão no fim.',
+  res:[['VCV','Aumentar o fluxo; reduzir o VC se estiver alto.'],['PCV','Reduzir o tempo inspiratório.'],['PSV','Subir o % de ciclagem.']]}
+];
+const FASE={disparo:'Disparo',fluxo:'Fluxo',ciclagem:'Ciclagem'};
+const ondaCache={};
+const ondaDe=a=>ondaCache[a.id]||(ondaCache[a.id]=onda(ONDA_DE[a.id]));
+let asincPronto=false;
+function montaAsinc(){
+  el('l-asinc').innerHTML=ASINC.map(a=>`
+  <article class="bloco ac" id="a-${a.id}" data-fase="${a.fase}">
+    <button type="button" class="ac-h" aria-expanded="false">
+      ${svgOnda(ondaDe(a),true)}
+      <span><span class="nm">${a.nome}</span><span class="idt">${a.iden}</span><span class="fase f-${a.fase}">${FASE[a.fase]}</span></span>
+      <svg class="chev" width="20" height="20"><use href="#i-chev"/></svg>
+    </button>
+    <div class="bd">
+      <div data-onda="${a.id}"></div>
+      <div class="resol"><h4>Resolução</h4>${a.res.map(([m,t])=>`<div class="rl"><span class="modo${m?'':' geral'}">${m||'●'}</span><span>${t}</span></div>`).join('')}</div>
+    </div>
+  </article>`).join('');
+  asincPronto=true;
+}
+el('l-asinc').addEventListener('click',e=>{
+  const h=e.target.closest('.ac-h'); if(!h)return;
+  const card=h.parentElement,on=!card.classList.contains('on');
+  card.classList.toggle('on',on); h.setAttribute('aria-expanded',on?'true':'false');
+  const slot=card.querySelector('[data-onda]');
+  if(on&&!slot.firstChild){const a=ASINC.find(x=>x.id===slot.dataset.onda); slot.innerHTML=svgOnda(ondaDe(a),false);}
+});
+el('filtros').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return; const f=b.dataset.f;
+  el('filtros').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+  document.querySelectorAll('#l-asinc .ac').forEach(c=>c.classList.toggle('hide',!(f==='todas'||c.dataset.fase===f)));
+});
+
+/* ================= Glasgow ================= */
+const GCS={
+ O:{nome:'Abertura ocular',op:[[4,'Espontânea','olhos abertos antes de qualquer estímulo'],[3,'Ao som','abre à ordem em voz normal ou alta'],[2,'À pressão','abre após pressão na ponta do dedo'],[1,'Nenhuma','sem abertura, sem fator que impeça'],['NT','Não testável','olhos fechados por fator local']]},
+ V:{nome:'Resposta verbal',op:[[5,'Orientado','diz nome, local e data corretamente'],[4,'Confuso','desorientado, mas conversa coerente'],[3,'Palavras','palavras isoladas inteligíveis'],[2,'Sons','só gemidos, sem palavras'],[1,'Nenhuma','sem som, sem fator que impeça'],['NT','Não testável','fator que impede a fala: IOT, TQT']]},
+ M:{nome:'Melhor resposta motora',op:[[6,'Obedece','cumpre ordem de duas etapas'],[5,'Localiza','leva a mão acima da clavícula até o estímulo'],[4,'Flexão normal','flexão rápida do cotovelo, padrão normal'],[3,'Flexão anormal','flexão com padrão anormal (decorticação)'],[2,'Extensão','extensão do cotovelo (descerebração)'],[1,'Nenhuma','sem movimento, sem fator que impeça'],['NT','Não testável','fator que limita a resposta motora']]}
+};
+const gsel={O:null,V:null,M:null};
+function gResumo(sel){
+  const c=k=>sel[k]===null?'–':sel[k], comp=`O${c('O')} V${c('V')} M${c('M')}`;
+  const vals=['O','V','M'].map(k=>sel[k]);
+  return {comp,completo:vals.every(v=>v!==null),temNT:vals.some(v=>v==='NT'),soma:vals.filter(v=>typeof v==='number').reduce((a,b)=>a+b,0)};
+}
+function montaGCS(){
+  el('g_linhas').innerHTML=['O','V','M'].map(k=>`<div class="grow"><div class="gl">${k} <span>· ${GCS[k].nome}</span></div>
+    <div class="gbts" style="grid-template-columns:repeat(${GCS[k].op.length},1fr)" data-g="${k}">${GCS[k].op.map(([v])=>`<button type="button" data-v="${v}" class="${v==='NT'?'nt':''}" aria-pressed="false">${v}</button>`).join('')}</div>
+    <div class="gdesc" id="gd-${k}">Toque para escolher.</div></div>`).join('');
+  el('g_crit').innerHTML=['O','V','M'].map(k=>`<h4>${k} · ${GCS[k].nome}</h4>`+GCS[k].op.map(([v,n,d])=>`<p><b>${v}</b> ${n}: ${d}</p>`).join('')).join('');
+}
+function gRender(){
+  const {comp,completo,temNT,soma}=gResumo(gsel);
+  el('g_comp').textContent=comp;
+  ['O','V','M'].forEach(k=>{const o=GCS[k].op.find(x=>String(x[0])===String(gsel[k])); el('gd-'+k).innerHTML=o?`<b>${o[0]} · ${o[1]}:</b> ${o[2]}`:'Toque para escolher.';});
+  const chip=el('g_chip');
+  if(!completo){el('g_tot').textContent='—';chip.className='pill neutro';chip.textContent='Escolha os três';return;}
+  if(temNT){el('g_tot').innerHTML=soma+'<small>parcial</small>';chip.className='pill warn';chip.textContent='NT: soma não comparável com 3 a 15';return;}
+  el('g_tot').textContent=soma;
+  if(soma<=8){chip.className='pill bad';chip.textContent='Grave, ≤ 8: coma';}
+  else if(soma<=12){chip.className='pill warn';chip.textContent='Moderado, 9 a 12';}
+  else{chip.className='pill ok';chip.textContent='Leve, 13 a 15';}
+}
+el('g_linhas').addEventListener('click',e=>{
+  const b=e.target.closest('button'); if(!b)return; const box=b.parentElement, k=box.dataset.g;
+  gsel[k]=b.dataset.v==='NT'?'NT':Number(b.dataset.v);
+  box.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false')); gRender();
+});
+function gLimpa(){gsel.O=gsel.V=gsel.M=null;document.querySelectorAll('#g_linhas button').forEach(x=>x.setAttribute('aria-pressed','false'));gRender();}
+el('g_limpar').addEventListener('click',gLimpa);
+el('g_copiar').addEventListener('click',async()=>{
+  const {comp,completo,temNT,soma}=gResumo(gsel); if(!completo){toast('Escolha os três componentes');return;}
+  const txt=temNT?`ECG ${comp} (soma dos testáveis ${soma})`:`ECG ${soma} (${comp})`;
+  let ok=false; try{await navigator.clipboard.writeText(txt);ok=true;}catch(err){
+    const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();try{ok=document.execCommand('copy');}catch(e2){}document.body.removeChild(ta);}
+  toast(ok?'Copiado: '+txt:'Não consegui copiar');
+});
+
+
+/* ================= autoteste ================= */
+function autoteste(){
+  let ok=0,tot=0; const falhas=[];
+  const chk=(nome,got,exp,tol)=>{tot++; if(Math.abs(got-exp)<=(tol??1e-9))ok++; else falhas.push(nome);};
+  const D=id=>DROGAS.find(x=>x.id===id);
+  // valores conferidos contra a planilha Calculadoras para UTI
+  [['nora',8,250,5,69,0.15458937198067632],['vaso',2,100,6,1,0.04],['adre',16,250,10,120,0.08888888888888888],['dobu',4,250,6,80,5],
+   ['nipr',1,250,12,75,0.5333333333333333],['ntg',1,250,6,1,20],['fent',5,0,1,1,50],['mida',3,150,10,80,0.125],['prop',5,0,13,40,54.166666666666664],
+   ['keta',1,100,5,25,0.2],['dexm',2,100,20,54,1.4814814814814814],['morf',5,100,1,1,0.5],['rocu',5,250,70,130,8.974358974358974]]
+   .forEach(([id,a,v,m,p,e])=>{const d=D(id);chk(id,doseDe(d,conc(d,a,v),m,p),e);});
+  chk('milr',mlhDe(D('milr'),conc(D('milr'),1,100),0.35,75),15.75);
+  chk('dopa',mlhDe(D('dopa'),conc(D('dopa'),5,250),1.5,75),6.75);
+  chk('dexm ataque',1*54/conc(D('dexm'),2,100),13.5);
+  chk('peso predito',V.pbw('M',180),75.116,1e-6);
+  chk('P/F',V.pf(69,60),115,1e-6);
+  chk('A-a',V.aa(69,60,60,700),247.8,1e-6);
+  chk('PaO2 prevista',V.prev(84,700),78.842105263,1e-6);
+  chk('CaO2',V.cao2(9.6,92,69),12.04878,1e-6);
+  chk('FiO2 alvo',V.fio2alvo(60,82,69),71.304347826,1e-6);
+  chk('Glasgow',gResumo({O:3,V:4,M:6}).soma,13);
+  chk('nora início 70 kg',mlhDe(D('nora'),conc(D('nora'),4,250),0.1,70),6.5625);
+  return {ok,tot,falhas};
+}
+
+
+/* ================= eventos e navegação ================= */
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.d){
+    const d=DROGAS.find(x=>x.id===t.dataset.d), s=st[d.id], k=t.dataset.k;
+    if(k==='amp'||k==='vol'){congela(d); s[k]=t.value;}
+    else{s[k]=t.value; s.anchor=k;}
+    calcDroga(d);
+  } else if(t.id==='peso'){DROGAS.forEach(congela); atualizaPeso(); DROGAS.forEach(calcDroga);}
+  else if(t.id&&t.id.startsWith('v_')) calcVent();
+});
+document.addEventListener('click',e=>{
+  const pb=e.target.closest('[data-prep]'); if(pb){const id=pb.dataset.prep, open=pb.getAttribute('aria-expanded')!=='true'; pb.setAttribute('aria-expanded',String(open)); el('pe-'+id).classList.toggle('hide',!open); return;}
+  const ib=e.target.closest('[data-info]'); if(ib){const box=el('i-'+ib.dataset.info), on=box.classList.contains('hide'); box.classList.toggle('hide',!on); ib.classList.toggle('on',on); return;}
+});
+function irPara(t){
+  document.querySelectorAll('.tabbar button').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t?'true':'false'));
+  ['vaso','sed','vent','asinc','gcs'].forEach(x=>el('p-'+x).classList.toggle('hide',x!==t));
+  if(t==='asinc'&&!asincPronto) montaAsinc();
+  store.set('uti.aba',t); window.scrollTo(0,0);
+}
+document.querySelector('.tabbar').addEventListener('click',e=>{const b=e.target.closest('button'); if(b)irPara(b.dataset.t);});
+el('novo').addEventListener('click',()=>{
+  el('peso').value=''; atualizaPeso();
+  DROGAS.forEach(d=>st[d.id]=estadoInicial(d));
+  montaListas();
+  Object.keys(VF).forEach(id=>{if(id!=='v_pb')el(id).value='';});
+  sexo=null; el('v_sexo').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed','false')); calcVent();
+  gLimpa(); window.scrollTo(0,0); toast('Pronto para novo paciente');
+});
+
+/* ================= início ================= */
+el('ver').textContent=VERSAO;
+montaListas(); atualizaPeso(); calcVent(); montaGCS(); gRender();
+const AT=autoteste();
+el('rodape').textContent=`${VERSAO} · contas conferidas ${AT.ok}/${AT.tot}`;
+if(AT.ok!==AT.tot){const b=el('banner');b.textContent=`Autoteste falhou em ${AT.tot-AT.ok} conta(s): ${AT.falhas.join(', ')}. Não use esta versão.`;b.classList.remove('hide');}
+irPara(store.get('uti.aba','vaso'));
+if('serviceWorker' in navigator&&location.protocol==='https:'&&/(github\.io|workers\.dev)$/.test(location.hostname)){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+</script>
+</body>
+</html>
