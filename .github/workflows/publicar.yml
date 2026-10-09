@@ -1,4 +1,4 @@
-name: Testar e publicar
+name: Testar e empacotar
 
 on:
   push:
@@ -7,12 +7,10 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 concurrency:
-  group: pages
+  group: publicar
   cancel-in-progress: false
 
 jobs:
@@ -30,18 +28,21 @@ jobs:
       - name: Testar o app em tela de celular
         run: python tests/autoteste.py docs/index.html
 
-  publicar:
+  empacotar:
     if: github.event_name != 'pull_request'
     needs: testar
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
-      - id: deploy
-        uses: actions/deploy-pages@v4
+      - name: Montar o worker da Cloudflare
+        run: python3 tools/empacotar.py
+      - name: Guardar o pacote testado na branch publicado
+        run: |
+          cp dist/worker.js "$RUNNER_TEMP/worker.js"
+          git checkout -q --orphan publicado
+          git rm -rfq .
+          cp "$RUNNER_TEMP/worker.js" worker.js
+          git add worker.js
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit -qm "Pacote de ${GITHUB_SHA::7}"
+          git push -qf origin publicado
